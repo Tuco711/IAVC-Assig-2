@@ -141,3 +141,54 @@ class IntermediateFeatureExtractor(torch.nn.Module):
         for hook in self._hooks:
             hook.remove()
         self._hooks.clear()
+
+
+def extractEmbeddings(model_name, paths, device="cpu", batch_size=64, flip=False):
+    """Frozen-feature extraction for a list of image paths.
+
+    Returns ``(feats, sec_per_image)`` where ``feats`` maps a feature name to an ``(N, D)`` float32 array.
+    Timing includes image decoding + preprocessing + forward pass, but not model loading.
+    ``flip=True`` horizontally flips every image before preprocessing (training-time augmentation).
+
+    Feature names: ``resnet18_gap3`` (GAP of layer2.1/3.1/4.1 concatenated, 896-d), ``resnet18_l4`` (512-d),
+    ``vit_b_32_cls`` (768-d), ``vit_b_32_gap3`` (token-mean of last 3 blocks, 3x768-d),
+    ``dinov2_cls`` (384-d), ``dinov2_patchmean`` (384-d), ``clip_img`` (512-d, unnormalised).
+    """
+    import time
+    import numpy as np
+    from PIL import Image
+    import torchvision.transforms.functional as TF
+
+    model, pre = getModel(model_name, device=device, nofc=True)
+    ext = IntermediateFeatureExtractor(model) if model_name in ("resnet18", "vit_b_32") else None
+    out = {}
+
+    def add(key, t):
+        out.setdefault(key, []).append(t.float().cpu().numpy())
+
+    t0 = time.perf_counter()
+    for i in range(0, len(paths), batch_size):
+        ims = [Image.open(p).convert("RGB") for p in paths[i:i + batch_size]]
+        if flip:
+            ims = [TF.hflip(im) for im in ims]
+        x = torch.stack([pre(im) for im in ims]).to(device)
+        with torch.inference_mode():
+            if model_name == "resnet18":
+                y, f = ext(x)
+                gap = [f[k].mean((2, 3)) for k in ("layer2.1", "layer3.1", "layer4.1")]
+                add("resnet18_gap3", torch.cat(gap, 1)); add("resnet18_l4", gap[2])
+            elif model_name == "vit_b_32":
+                y, f = ext(x)
+                last = sorted(k for k in f if k.startswith("encoder.layers."))[-3:]
+                add("vit_b_32_cls", y); add("vit_b_32_gap3", torch.cat([f[k].mean(1) for k in last], 1))
+            elif model_name == "dinov2_vits14":
+                f = model.forward_features(x)
+                add("dinov2_cls", f["x_norm_clstoken"]); add("dinov2_patchmean", f["x_norm_patchtokens"].mean(1))
+            elif model_name == "clip_vit_b_32":
+                add("clip_img", model.encode_image(x))
+            else:
+                raise ValueError(model_name)
+    sec = (time.perf_counter() - t0) / len(paths)
+    if ext is not None:
+        ext.remove_hooks()
+    return {k: np.concatenate(v) for k, v in out.items()}, sec

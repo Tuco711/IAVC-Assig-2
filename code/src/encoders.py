@@ -21,9 +21,12 @@ from sklearn.cluster import KMeans
 from skimage.feature import learn_gmm, fisher_vector
 from sklearn.mixture import GaussianMixture
 
-from cyvlfeat.vlad import vlad
-from cyvlfeat.fisher import fisher as vl_fisher
-from cyvlfeat.kmeans import kmeans as vl_kmeans
+try:  # cyvlfeat is optional: only needed to (re)compute VLAD/SIFT, not to use stored encodings
+    from cyvlfeat.vlad import vlad
+    from cyvlfeat.fisher import fisher as vl_fisher
+    from cyvlfeat.kmeans import kmeans as vl_kmeans
+except ImportError:
+    vlad = vl_fisher = vl_kmeans = None
 from .features import computeFeatures, standarizeImage, extractFeatures
 
 ################################################################################
@@ -65,7 +68,8 @@ def removeSpatialInformation(histograms: np.ndarray) -> np.ndarray:
         Array of shape ``(N, num_words)`` with the tile dimension averaged.
     """
     N = histograms.shape[0]
-    return np.mean(np.reshape(histograms, (N, -1, 4)), axis=2)
+    # tiles are concatenated tile-major (see ImageEncoder.encode_tiling)
+    return np.mean(np.reshape(histograms, (N, 4, -1)), axis=1)
 
 def load_npz(file_path: Union[str, Path]) -> Dict[str, np.ndarray]:
     """Load an encoder configuration from an ``.npz`` file.

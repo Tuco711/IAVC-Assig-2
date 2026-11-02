@@ -4,10 +4,13 @@ import math
 import cv2
 import numpy as np
 from pathlib import Path
-from scipy.ndimage import filters as scipy_filters
+from scipy import ndimage as scipy_filters
 
-from cyvlfeat.sift import dsift
-from cyvlfeat.utils import rgb2gray, rgb_to_hsv
+try:  # cyvlfeat is optional: only needed to compute dense SIFT from images
+    from cyvlfeat.sift import dsift
+    from cyvlfeat.utils import rgb2gray, rgb_to_hsv
+except ImportError:
+    dsift = rgb2gray = rgb_to_hsv = None
 
 
 INTER = {

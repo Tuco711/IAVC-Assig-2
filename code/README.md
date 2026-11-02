@@ -161,3 +161,28 @@ projects:
 
 These models may download pretrained weights the first time they are loaded.
 The notebook automatically selects CUDA when available and otherwise uses CPU.
+
+## Reproducing the report
+
+Run the notebooks from `code/` (they locate `../data` automatically), in this order:
+
+| Notebook | Covers | Needs `cyvlfeat`? |
+|---|---|---|
+| `1_handcraft.ipynb` | Part 1 (BoVW + SVM, normalisation, Hellinger, learning curves), Part 2 (VLAD / FV), Part 3 (PCA) | No, except the *relevant visual words* cell and re-encoding with other `K` |
+| `2_deep_models.ipynb` | Part 4 (ResNet-18, ViT-B/32, DINOv2, CLIP; few-shot, C sweep, zero-shot, failure cases) + final comparison table | No |
+| `3_retrieval.ipynb` | Part 5 (retrieval challenge, motorbike) | No (needs the feature cache written by notebook 2) |
+
+All tables/plots data are also written to `code/results/*.csv`. Shared helpers: `src/eval.py` (normalisations,
+dev split, SVM fit/eval with timings, P@K/R@K, OvR scores); `src/deep_models.py::extractEmbeddings` (frozen features).
+
+**Protocol.** The provided `val` split is used as the held-out **test** set (reported once). All choices (C, normalisation,
+spatial vs global, prompt set) use a stratified `dev` split from `train` (or the train split for zero-shot prompts). One-vs-rest
+tasks = category vs `background`; 5-way confusion/F1 use val images with exactly one category label. Seeds: 0-4.
+
+**Deviations / not run.** `K=256` and `K=1024` vocabularies (Part 3, Part 5 vocabulary question) require
+`python -m src.train -e bovw -k 256 -c 0` (and `-k 1024`) followed by `python -m src.extract -e data/encodings/...` on a machine with
+`cyvlfeat`; notebooks 1 and 3 pick up any `data/encodings/bovw_K*_C0` automatically. Extraction time of the handcrafted features is
+not re-measured (provided pre-computed descriptors).
+
+**Environment.** `requirements.txt` (versions pinned); `cyvlfeat` is optional (imports are guarded). To execute notebooks headless:
+`jupyter nbconvert --to notebook --execute --inplace <notebook>` (needs `nbconvert`). Hardware/device and timings are printed in the notebooks.
