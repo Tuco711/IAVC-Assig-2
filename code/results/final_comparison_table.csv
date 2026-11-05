@@ -1,7 +1,7 @@
 Method,Supervision,mAP,Dim,Extraction,Inference_ms_per_img,Train_s
-"BoVW + SVM (K=512, Hellinger)",Task labels,0.7162558213637666,2048,"precomputed descriptors (dense SIFT, not re-timed)",0.0002125776339396,0.0832535084002302
-"VLAD + SVM (K=32, PCA80)",Task labels,0.7791435671811138,10240,"precomputed descriptors (dense SIFT, not re-timed)",0.0024744148633374,0.4371671745997446
-"Fisher Vector + SVM (K=32, PCA80)",Task labels,0.794371180878914,20608,"precomputed descriptors (dense SIFT, not re-timed)",0.0021234610119227,0.9595473415993184
+"BoVW + SVM (K=512, Hellinger)",Task labels,0.7162558213637666,2048,"183 ms/img (cpu, 2 cores)",0.0002125776339396,0.0832535084002302
+"VLAD + SVM (K=32, PCA80)",Task labels,0.7791435671811138,10240,"155 ms/img (cpu, 2 cores)",0.0024744148633374,0.4371671745997446
+"Fisher Vector + SVM (K=32, PCA80)",Task labels,0.794371180878914,20608,"205 ms/img (cpu, 2 cores)",0.0021234610119227,0.9595473415993184
 ResNet-18 (GAP l2-l4) + SVM,Pretrained + task labels,0.965598579035605,896,3.5 ms/img (mps),0.0003439553981198611,0.01821260839969909
 ViT-B/32 (CLS) + SVM,Pretrained + task labels,0.974408392080113,768,5.5 ms/img (mps),0.00017078745517897396,0.01947402500009048
 DINOv2 ViT-S/14 (CLS) + SVM,Self-supervised + task labels,0.987681921483806,384,7.6 ms/img (mps),7.682450713013539e-05,0.007309908399474807
