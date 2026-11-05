@@ -185,9 +185,11 @@ all images in one pass. Run, from `code/`, then re-execute notebook 1 and `3b_re
 `python -m src.run_vocab train`, `python -m src.run_vocab encode`, `python -m src.run_vocab merge`, `python -m src.run_vocab timing`.
 K = 512 is the provided vocabulary. Dimension of tiled BoVW is 4K, so K = 32/64 are the compact baselines of Part 3 condition D.
 
+**Order.** First run: notebook 1 up to Part 2, notebook 2, then the rest of notebook 1 and `3b_retrieval_vocabulary.ipynb`, because the handcrafted extraction times update tables written by notebooks 2 and 3.
+
 **Deviations / not run.** Vocabularies are trained once (seed 42): the 3 seeds of Part 3 vary the dev split only, not the codebook. Handcrafted timings were
 measured on a 2-core CPU, deep model timings on Apple MPS, so extraction costs in the final table are not directly comparable. `2_deep_models.ipynb` and
-`3_retrieval.ipynb` keep their original outputs and were not re-executed with the vocabulary update; its vocabulary question is answered in `3b_retrieval_vocabulary.ipynb`.
+`3_retrieval.ipynb` keep their original outputs and were not re-executed with the vocabulary update (extraction times of the handcrafted rows in their result CSVs were filled in afterwards); its vocabulary question is answered in `3b_retrieval_vocabulary.ipynb`.
 
 **Environment.** `requirements.txt` (versions pinned); `cyvlfeat` is optional (imports are guarded). To execute notebooks headless:
 `jupyter nbconvert --to notebook --execute --inplace <notebook>` (needs `nbconvert`). Hardware/device and timings are printed in the notebooks.
