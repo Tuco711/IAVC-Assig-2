@@ -1,0 +1,17 @@
+{
+ "sample_descriptors_s": 105.18122733999996,
+ "n_sampled_descriptors": 319600,
+ "codebook_fit_s_K32": 11.148081079000008,
+ "codebook_fit_s_K64": 19.92794823700001,
+ "codebook_fit_s_K256": 93.2313421959999,
+ "codebook_fit_s_K1024": 265.755672452,
+ "descriptor_ms_per_img": 128.0002275127353,
+ "encode_ms_per_img_K32": 19.957431241002578,
+ "encode_ms_per_img_K64": 22.922834940157337,
+ "encode_ms_per_img_K256": 45.935116595631506,
+ "encode_ms_per_img_K1024": 136.62764920177935,
+ "timing_descriptor_ms_per_img": 107.75713308332797,
+ "timing_encode_ms_per_img_bovw_K512_C0": 75.41865901666824,
+ "timing_encode_ms_per_img_vlad_K32_C80": 47.1736609499961,
+ "timing_encode_ms_per_img_fv_K32_C80": 97.16117054999813
+}
